@@ -1,8 +1,10 @@
 # Linux Security Compliance Auditor
 
+[![CI](https://github.com/ryanxtrinh/linux-compliance-auditor/actions/workflows/ci.yml/badge.svg)](https://github.com/ryanxtrinh/linux-compliance-auditor/actions/workflows/ci.yml)
+
 A Java command-line tool that checks a Linux system against **63 security controls based on CIS Benchmarks**, maps each one to **NIST CSF 2.0** and **ISO/IEC 27001:2022**, and writes an audit report with a risk-weighted compliance score.
 
-It is **read-only**: it never changes anything on the system. Pure Java 17+, no external libraries.
+It is **read-only**: it never changes anything on the system. Pure Java 17+, no runtime dependencies (JUnit 5 for tests only).
 
 ## What it checks
 
@@ -31,6 +33,22 @@ Output goes to `audit-output/`:
 - `findings.csv`: every control with its result and evidence (opens in Excel)
 
 Without `sudo`, controls that need root (e.g. reading `/etc/shadow`) are marked **ERROR / not evaluated**.
+
+## Tests
+
+```bash
+mvn test
+```
+
+31 JUnit 5 tests. The main suite builds a fake root filesystem in a temp folder (a hardened
+system and a deliberately weak one) and runs real controls from the catalog against it, the
+same way `--root` audits a mounted image. It checks that each control reaches the right
+verdict and records evidence. Other tests cover the sshd_config parser (Include drop-ins,
+first-value-wins, Match blocks), the weighted score and the CSV round trip, and check that
+every control has a NIST CSF 2.0 and ISO 27001:2022 mapping.
+
+GitHub Actions runs the tests on Java 17 and 21, then audits the CI runner itself and saves
+the HTML report as a downloadable build artifact.
 
 ## Before/after remediation workflow
 
@@ -85,6 +103,7 @@ src/main/java/auditor/
   system/SshConfig.java      effective sshd config (sshd -T, or parses Include/first-match rules)
   model/                     Check, Result, Finding
   report/                    Score, HtmlReport, CsvIO
+src/test/java/auditor/       JUnit 5 tests (FakeRoot.java builds test filesystems)
 ```
 
 ## Design notes
