@@ -32,7 +32,7 @@ Output goes to `audit-output/`:
 
 Without `sudo`, controls that need root (e.g. reading `/etc/shadow`) are marked **ERROR / not evaluated**.
 
-## The before/after workflow (the best part for your resume)
+## Before/after remediation workflow
 
 ```bash
 sudo java -jar auditor.jar --out before        # 1. baseline audit
@@ -43,7 +43,7 @@ sudo java -jar auditor.jar --out after --compare baseline.csv   # 3. re-audit
 
 The report gets a **Before vs. After** section listing the score change, every control you remediated, and anything that regressed.
 
-Tip: do this on the old laptop or a VM, and take a snapshot first. A few fixes (disabling SSH password login, firewall rules) can lock you out if you do them in the wrong order.
+Tip: run this on a VM or test machine and take a snapshot first. A few fixes (disabling SSH password login, firewall rules) can lock you out if you do them in the wrong order.
 
 ## Options
 
@@ -87,11 +87,11 @@ src/main/java/auditor/
   report/                    Score, HtmlReport, CsvIO
 ```
 
-## Things to be ready to explain in an interview
+## Design notes
 
 - **Why read-only?** Audit independence: the auditor gathers evidence and recommends fixes, and the system owner remediates. A tool that silently "fixed" things would destroy the evidence trail.
 - **SSH config is first-match-wins**, and Ubuntu includes `sshd_config.d/*.conf` *before* the main file. So a cloud-init file can override what you see in `sshd_config`. The tool handles this (or uses `sshd -T` when root).
-- **PWD-01 vs NIST SP 800-63B:** CIS still recommends password expiry, but NIST now advises against forced periodic changes. The report flags the control and notes the tradeoff. Choosing a policy and documenting it is the actual audit skill.
+- **PWD-01 vs NIST SP 800-63B:** CIS still recommends password expiry, but NIST now advises against forced periodic changes. The report flags the control and notes the tradeoff. Which policy to follow is a documented decision for the system owner.
 - **Accepted risk:** some "failures" are legitimate (IP forwarding on a Docker host). In a real audit you document those as accepted exceptions rather than fixing them.
 - **Limitations:** point-in-time snapshot, a subset of the full CIS Benchmark, and no review of policies, people or applications.
 
