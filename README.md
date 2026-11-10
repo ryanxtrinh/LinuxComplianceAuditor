@@ -1,5 +1,7 @@
 # Linux Security Compliance Auditor
 
+[![Build](https://github.com/ryanxtrinh/LinuxComplianceAuditor/actions/workflows/build.yml/badge.svg)](https://github.com/ryanxtrinh/LinuxComplianceAuditor/actions/workflows/build.yml)
+
 A Java command-line tool that checks a Linux system against **63 security controls based on CIS Benchmarks**, maps each one to **NIST CSF 2.0** and **ISO/IEC 27001:2022**, and writes an audit report with a risk-weighted compliance score.
 
 It is **read-only**: it never changes anything on the system. Pure Java 17+, no external libraries.
