@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java: [17, 21]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ matrix.java }}
+          cache: maven
+      - name: Run tests
+        run: mvn -B verify
+      - name: Build with the no-Maven script
+        run: ./build.sh && java -jar auditor.jar --list > /dev/null
+
+  # Audit the CI runner itself and keep the report as a downloadable artifact
+  self-audit:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - name: Audit the GitHub Actions runner
+        run: ./build.sh && sudo java -jar auditor.jar --no-color --out audit-output
+      - uses: actions/upload-artifact@v4
+        with:
+          name: runner-audit-report
+          path: audit-output/
